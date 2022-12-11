@@ -1,5 +1,7 @@
 import time
 from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from pprint import pprint
 
@@ -43,13 +45,15 @@ time.sleep(1)
 office.send_keys(service_center_key)
 
 print("Perform search")
-
 submitButton = browser.find_element(By.ID, "getProcTimes")
 submitButton.click()
-
 print("Form has been submitted!")
-# time.sleep(3)
-#
-# result = browser.find_element(By.ID, "range")
-# result_unit = browser.find_element(By.ID, "unit")
-# print(f"This form's estimated processing time today is {result.text} {result_unit.text}.")
+
+time.sleep(5)
+
+result = browser.find_element(By.CLASS_NAME, "range")
+# Final class text has a newline character, and we're removing it here
+final = result.text.replace('\n', ' ')
+print(f"This form's estimated processing time today is {final}.")
+
+browser.quit()
