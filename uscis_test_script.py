@@ -33,7 +33,7 @@ form_options = [x.text for x in form.find_elements(By.TAG_NAME, "option")][1:]
 form_opts_dict = {x.split(' | ')[0]: x for x in form_options}
 print(f'There are {len(form_options)} forms to choose from')
 # Creating a dictionary, so I can quickly call what I want - yay
-print(form_opts_dict)
+pprint(form_options)
 form.send_keys(form_opts_dict[form_check_key])
 time.sleep(1)
 
