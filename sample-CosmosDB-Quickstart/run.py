@@ -202,14 +202,14 @@ def run_sample():
         query_items(container, 'Account1')
         replace_item(container, 'SalesOrder1', 'Account1')
         upsert_item(container, 'SalesOrder1', 'Account1')
-        delete_item(container, 'SalesOrder1', 'Account1')
+        # delete_item(container, 'SalesOrder1', 'Account1')
 
-        # cleanup database after sample
-        try:
-            client.delete_database(db)
-
-        except exceptions.CosmosResourceNotFoundError:
-            pass
+        # # cleanup database after sample
+        # try:
+        #     client.delete_database(db)
+        #
+        # except exceptions.CosmosResourceNotFoundError:
+        #     pass
 
     except exceptions.CosmosHttpResponseError as e:
         print('\nrun_sample has caught an error. {0}'.format(e.message))

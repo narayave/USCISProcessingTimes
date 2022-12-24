@@ -62,11 +62,8 @@ for i in office_opts_dict.keys():
     # office.send_keys(service_center_key)
     time.sleep(1)
 
-    # print("Perform search")
     submitButton = browser.find_element(By.ID, "getProcTimes")
     submitButton.click()
-    # print("Form has been submitted!")
-
     time.sleep(3)
 
     result = browser.find_element(By.CLASS_NAME, "range")
