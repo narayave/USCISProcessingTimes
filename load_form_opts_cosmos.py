@@ -79,7 +79,7 @@ class FormSubmissionOptions:
                     }
                     final_options_combos.append(entry)
 
-                    self.cosmos_ops.db_write(entry)
+                    self.cosmos_ops.db_upsert_write(entry)
 
         print(f'Total options - {len(final_options_combos)}')
 

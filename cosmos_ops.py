@@ -54,14 +54,14 @@ class CosmosOps:
         finally:
             print("CosmosDb setup complete")
 
-    def db_write(self, entry):
+    def db_upsert_write(self, entry):
         print('Going to write to database the following entry - ')
         pprint(entry)
-        self.container_client.create_item(entry)
+        self.container_client.upsert_item(entry)
 
     def db_query_items(self, query) -> list:
 
-        items = list(self.container_client.query_items(query))
+        print(f'Running query - \n {query}')
+        items = list(self.container_client.query_items(query, enable_cross_partition_query=True))
         print(f'Found {len(items)} items from query')
         return items
-
