@@ -112,11 +112,9 @@ class ProcessingTimes:
             "officeKey": option_combo["officeKey"]
         }
 
-        print(msg_time_list)
-        print(len(msg_time_list))
-        print(type(eval(msg_time_list[0])))
-
-        if (len(msg_time_list) == 2) and isinstance(eval(msg_time_list[0]), numbers.Number):
+        # Briefly remove the period from a possible numeric value to verify
+        digit_check = msg_time_list[0].replace('.', '', 1).isdigit()
+        if (len(msg_time_list) == 2) and digit_check:
             # If list has 2 items and first item is of type int, it means we read things properly
             time_val = msg_time_list[0]
             units = msg_time_list[1]
