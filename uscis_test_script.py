@@ -23,9 +23,12 @@ form = browser.find_element("id", "selectForm")
 category = browser.find_element("id", "selectFormCategory")
 office = browser.find_element("id", "selectOfficeOrCenter")
 
-form_check_key = 'I-129F'
-category_inner_key = 'K1/K2/K3/K4 - Fiance(e) or spouse and/or dependent children'
-service_center_key = 'Potomac Service Center'
+# form_check_key = 'I-129F'
+# category_inner_key = 'K1/K2/K3/K4 - Fiance(e) or spouse and/or dependent children'
+# service_center_key = 'Potomac Service Center'
+
+form_check_key = 'I-765'
+category_inner_key = 'Based on an approved, concurrently filed, I-821D [(c)(33)]'
 
 print("Set fields, delay 1 seconds between input")
 
@@ -54,7 +57,6 @@ print('\n\n')
 
 
 office_select = Select(office)
-
 for i in office_opts_dict.keys():
     # print(office_opts_dict[i])
 
@@ -66,9 +68,10 @@ for i in office_opts_dict.keys():
     submitButton.click()
     time.sleep(3)
 
-    result = browser.find_element(By.CLASS_NAME, "range")
-    # Final class text has a newline character, and we're removing it here
-    final = result.text.replace('\n', ' ')
-    print(f"This form's estimated processing time today at {office_opts_dict[i]} is {final}.")
+    result = browser.find_element(By.CLASS_NAME, "range").text.replace('\n', ' ')
+    print(f'result - {result}')
+    # # Final class text has a newline character, and we're removing it here
+    # final = result.text.replace('\n', ' ')
+    # print(f"This form's estimated processing time today at {office_opts_dict[i]} is {final}.")
 
 browser.quit()
