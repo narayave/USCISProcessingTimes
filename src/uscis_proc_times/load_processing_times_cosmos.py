@@ -10,6 +10,8 @@ import datetime
 
 from cosmos_ops import CosmosOps
 
+# NOTE: Selenium help - http://automate-apps.com/how-to-select-option-from-drop-down-using-selenium-web-driver/
+
 
 class ProcessingTimes:
     def __init__(self, run_date):
