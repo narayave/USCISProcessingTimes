@@ -78,7 +78,7 @@ class ProcessingTimes:
 
         submit_button = self.driver.find_element(By.ID, "getProcTimes")
         submit_button.click()
-        time.sleep(3)
+        time.sleep(5)
 
         result = self.driver.find_element(By.CLASS_NAME, "range").text
         return result
@@ -157,9 +157,13 @@ class ProcessingTimes:
 
 
 if __name__ == '__main__':
+
+    start_time = datetime.datetime.now()
     proc_times = ProcessingTimes(datetime.datetime.now().date())
     form_option_combinations = proc_times.get_all_form_options()
     proc_times.iterate_option_combinations(form_option_combinations)
 
     pprint(proc_times.error_msg_time)
     print(f'Found {len(proc_times.error_msg_time)} errors msgs')
+    end_time = datetime.datetime.now()
+    print(f'Total runtime was {end_time - start_time}')
