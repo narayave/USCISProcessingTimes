@@ -7,7 +7,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from pprint import pprint
 import time
 import datetime
-import numbers
 
 from cosmos_ops import CosmosOps
 
