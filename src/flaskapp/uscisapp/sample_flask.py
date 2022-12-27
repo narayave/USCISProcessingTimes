@@ -6,6 +6,7 @@ from flask import request
 import json
 import pandas as pd
 import plotly
+import plotly.express as px
 from pprint import pprint
 
 # import pandasql as ps
@@ -24,9 +25,6 @@ app = Flask(__name__)
 
 sub_form_cosmos_client = CosmosOps("SubmissionOptions")
 proc_times_cosmos_client = CosmosOps("ProcessingTimes")
-
-# print(app.url_map)
-
 
 @app.route('/')
 def index():
@@ -62,34 +60,9 @@ def form_output():
     pd.set_option('max_colwidth', None)
     print(form_pdf)
 
-    dates = map(int, list(form_pdf['rundate'].values))
-    times = map(float, list(form_pdf['time_val'].values))
+    graphs = px.line(form_pdf, x='rundate', y='time_val', color='catg_office_key', markers=True)
+    graphs.show()
 
-    results_dict = []
-    try:
-        # for item in query
-        results_dict.append(
-            dict(x=dates, y=times,
-                 name=form_pdf['catg_office_key'],
-                 type='line'))
-    except Exception as e:
-        print('Error message - ' + str(e))
-
-    print('\n\n')
-    pprint(results_dict)
-
-    graphs = [
-        dict(  # data,
-            data=[item for item in results_dict],
-            layout=dict(
-                title='Result',
-                xaxis=dict(title='Dates', type='category'),
-                yaxis=dict(title='Times (in months)')
-            )
-        )
-    ]
-
-    print('Test print')
     # Add "ids" to each of the graphs to pass up to the client for templating
     ids = ['Results:']
 
