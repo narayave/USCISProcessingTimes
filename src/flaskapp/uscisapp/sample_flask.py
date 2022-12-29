@@ -54,7 +54,7 @@ def form_output():
     """
 
     form_results = proc_times_cosmos_client.db_query_items(query)
-    pprint(form_results)
+    # pprint(form_results)
 
     form_pdf = pd.json_normalize(form_results)
     pd.set_option('max_colwidth', None)
@@ -64,7 +64,7 @@ def form_output():
     graphs.show()
 
     # Add "ids" to each of the graphs to pass up to the client for templating
-    ids = ['Results:']
+    ids = ['Result:']
 
     # Convert the figures to JSON
     # PlotlyJSONEncoder appropriately converts pandas, datetime, etc
