@@ -58,6 +58,7 @@ def form_output():
 
     form_pdf = pd.json_normalize(form_results)
     pd.set_option('max_colwidth', None)
+    form_pdf['time_val'] = form_pdf['time_val'].astype('float')
     print(form_pdf)
 
     graphs = px.line(form_pdf, x='rundate', y='time_val', color='catg_office_key', markers=True)

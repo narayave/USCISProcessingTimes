@@ -4,8 +4,8 @@ from azure.cosmos.partition_key import PartitionKey
 
 from pprint import pprint
 
+# from uscis_proc_times import config
 import config
-
 
 class CosmosOps:
     def __init__(self, container_name):
