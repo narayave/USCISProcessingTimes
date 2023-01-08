@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from pprint import pprint
 from seleniumwire import webdriver
-
+import json
 # DesiredCapabilities handlSSLErr = DesiredCapabilities.chrome ()
 # handlSSLErr.setCapability (CapabilityType.ACCEPT_SSL_CERTS, true)
 # WebDriver driver = new ChromeDriver (handlSSLErr);
@@ -94,7 +94,7 @@ for i in office_opts_dict.keys():
             request.url,
         )
         # pprint(request.response.body)
-        pprint(request.response.body.decode())
+        pprint(json.loads(request.response.body.decode()))
     time.sleep(1)
 
     result = browser.find_element(By.CLASS_NAME, "range").text.replace('\n', ' ')
