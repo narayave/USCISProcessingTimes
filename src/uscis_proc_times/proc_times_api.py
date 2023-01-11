@@ -1,3 +1,4 @@
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -5,6 +6,7 @@ from selenium.webdriver.support.ui import Select
 from pprint import pprint
 import time
 import datetime
+import json
 
 from cosmos_ops import CosmosOps
 
@@ -32,17 +34,17 @@ class ProcessingTimes:
         #     seleniumwire_options=options
         # )
 
-        self.driver = webdriver.Chrome()
+        # self.driver = webdriver.Chrome()
         # self.driver = webdriver.Chrome(ChromeDriverManager(version="109.0.5414.25").install(), service=service_object)
-        self.url = "https://egov.uscis.gov/processing-times/"
-        self.driver.get(self.url)
+        # self.url = "https://egov.uscis.gov/processing-times/"
+        # self.driver.get(self.url)
 
-        self.form_element = self.driver.find_element("id", "selectForm")
-        self.category_element = self.driver.find_element("id", "selectFormCategory")
-        self.office_element = self.driver.find_element("id", "selectOfficeOrCenter")
-        self.form_select = Select(self.form_element)
-        self.category_select = Select(self.category_element)
-        self.office_select = Select(self.office_element)
+        # self.form_element = self.driver.find_element("id", "selectForm")
+        # self.category_element = self.driver.find_element("id", "selectFormCategory")
+        # self.office_element = self.driver.find_element("id", "selectOfficeOrCenter")
+        # self.form_select = Select(self.form_element)
+        # self.category_select = Select(self.category_element)
+        # self.office_select = Select(self.office_element)
 
         # Record the missed time msgs here which can be analyzed later
         self.error_msg_time = []
@@ -77,6 +79,64 @@ class ProcessingTimes:
         option_combo["api_url"] = request.url
         option_combo["gather_date"] = datetime.datetime.now().strftime('%Y-%m-%mT%H:%M:%S')
         self.form_ops.db_upsert_write(option_combo)
+
+    def get_proc_api_response(self, option_combo):
+
+        resp = requests.get(
+            option_combo["api_url"], headers={"Referer": "https://egov.uscis.gov/processing-times/"}, verify=False
+        )
+
+        dict_resp = json.loads(resp.text)
+
+        resp_subtypes = dict_resp["data"]["processing_time"]["subtypes"][0]
+
+        return resp_subtypes
+
+    def record_api_result_proc_time(self, option_combo, resp_dict):
+
+        # NOTE: Creating an id using rundate and id from form container
+        # This allows for replaying pipeline and not generating new data every time, just overwrite as necessary
+        # Ex: 2022-12-25 for form 14 will be '202212250014'
+        fmt_rundate = self.run_date.strftime('%Y%m%d')
+        fmt_formid = int(option_combo['id'])
+        generated_id = f"{fmt_rundate}{fmt_formid:04d}"
+
+        try:
+            time_val = resp_dict["range"][1]['value']
+            time_units = resp_dict["range"][1]['unit']
+
+            # Base entry dict
+            proc_time_entry = {
+                "id": generated_id,
+                "rundate": str(self.run_date),
+                "formKey": option_combo["formKey"],
+                "categoryKey": option_combo["categoryKey"],
+                "officeKey": option_combo["officeKey"],
+                "publication_date": resp_dict["publication_date"],
+                "service_request_date": resp_dict["service_request_date"]
+            }
+
+            if time_units == "Weeks":
+                # NOTE: Turn weeks into months - this is approximation
+                # (Num of weeks * 7 days (in a week)) / divided by 30 (avg days in a month)
+                time_val = float(int(time_val) * 7.0) / 30.0
+                time_units = "Months"
+            elif time_units == "Days":
+                # NOTE: If unit is 'Days', divide by 30 (avg days in a month) to record in unit of months
+                time_val = float(int(time_val)) / 30.0
+                time_units = "Months"
+
+            proc_time_entry["time_val"] = time_val
+            proc_time_entry["time_units"] = time_units
+
+        except:
+            # One of the above conditions is not met, so we'll record the message instead
+            proc_time_entry["form_result_msg"] = "Something happened"
+
+            # Adding it to the list to know how entries are having trouble
+            self.error_msg_time.append(proc_time_entry)
+
+        self.proc_times_ops.db_upsert_write(proc_time_entry)
 
     def get_processing_time(self, option_combo):
         """
@@ -168,8 +228,8 @@ class ProcessingTimes:
         num_of_combinations = len(combinations)
         print(f"Total number of combinations to run through is {num_of_combinations}")
         for i in range(0, num_of_combinations):
-            msg_time_units = self.get_processing_time(combinations[i])
-            self.record_proc_time(combinations[i], msg_time_units)
+            resp = self.get_proc_api_response(combinations[i])
+            self.record_api_result_proc_time(combinations[i], resp)
 
         print(f"Processing times recording complete for {num_of_combinations} combinations")
 
@@ -179,6 +239,7 @@ if __name__ == '__main__':
     start_time = datetime.datetime.now()
     proc_times = ProcessingTimes(datetime.datetime.now().date())
     form_option_combinations = proc_times.get_all_form_options()
+    pprint(form_option_combinations)
     proc_times.iterate_option_combinations(form_option_combinations)
 
     pprint(proc_times.error_msg_time)
